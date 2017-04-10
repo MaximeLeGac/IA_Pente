@@ -1,0 +1,21 @@
+td {
+	border: 1px solid black;
+	border-radius: 25px;
+	width: 25px;
+	height:25px;
+	cursor: pointer;
+}
+
+td.empty {
+	background-color: inherit;
+}
+
+td.noir {
+	background-color: #000000;
+	box-shadow: inset 4px 3px 20px -6px #146717;
+}
+
+td.blanc {
+	background-color: #FFFFFF;
+	box-shadow: inset 4px 3px 20px -6px #7f8f8f;
+}
