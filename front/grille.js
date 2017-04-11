@@ -92,6 +92,10 @@ function play(x, y) {
 	if (elem) elem.className = couleurTour === 1 ? "first-color" : "second-color";
 	couleurTour = couleurTour%2+1;
 
+	// On vérifie si le coup joué n'a pas généré une tenaille
+	// si c'est le cas, on incrémente le compteur du joueur courant
+	checkTenailles(x, y, grid);
+
 	// Vérifie les conditions de fin de partie : victoire ou égalité
 	if (rslt = checkWinner(x, y, grid)) endGame("Vainqueur : " + (rslt === 1 ? labelPlayer1 : labelPlayer2));
 	if (nbTenailles1 > 0 || nbTenailles2 > 0) {
@@ -142,13 +146,6 @@ function iaToPlay() {
 			var rslt = iaJoue(grid, couleurTour);
 			continueJeu = true;
 			play(rslt[0], rslt[1]);
-
-			var x = rslt[0];
-			var y = rslt[1];
-			if ((x == 0 && y == 0) || (x == 0 && y == 18) || (x == 18 && y == 0) || (x == 18 && y == 18)) {
-				console.log("x = "+x);
-				console.log("y = "+y);
-			}
 		}, 10); // Au cas où deux ordi jouent ensemble et pour voir le coup pendant que l'IA réfléchit
 	}
 }
@@ -240,7 +237,7 @@ function checkWinner(x, y, vGrille) {
 
 	// On vérifie si le coup joué n'a pas généré une tenaille
 	// si c'est le cas, on incrémente le compteur du joueur courant
-	checkTenailles(x, y, vGrille);
+	//checkTenailles(x, y, vGrille);
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
 	if (couleurTour === 1) {
@@ -281,7 +278,7 @@ function checkTenailles(x, y, vGrille) {
 			}
 
 			if (vGrille[x + i][y + j] === couleurAdv) {
-				if (vGrille[x + (2*i)][j + (2*j)] === couleurAdv) {
+				if (vGrille[x + (2*i)][y + (2*j)] === couleurAdv) {
 					if (vGrille[x + (3*i)][y + (3*j)] === couleurJeton) {
 						// On est dans le cas d'une tenaille
 						// On supprime les jetons pris en tenaille et on incrémente le compteur de tenailles du joueur
