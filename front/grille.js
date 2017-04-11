@@ -134,7 +134,7 @@ function iaToPlay() {
 		setTimeout(function(){
 			var rslt = iaJoue(grid, couleurTour);
 			continueJeu = true;
-			joue(rslt[0], rslt[1]);
+			play(rslt[0], rslt[1]);
 		}, 10); // Au cas où deux ordi jouent ensemble et pour voir le coup pendant que l'IA réfléchit
 	}
 }
