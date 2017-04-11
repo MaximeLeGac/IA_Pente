@@ -33,7 +33,7 @@ function iaAlphaBeta(grille, couleur, profondeur, alpha, beta){
 
 				grille[x][y] = couleur; // On va essayer avec ce coup
 				// vérifie si le coup est gagnant
-				if (estim = verifVainqueur(x, y, grille)) {
+				if (estim = checkWinner(x, y, grille)) {
 					grille[x][y] = 0; //restauration de la grille
 					if (!profondeur) {
 						return [x,y];

@@ -6,14 +6,14 @@ td {
 	cursor: pointer;
 }
 
-td.empty {
+td.none {
 	background-color: inherit;
 }
 
-td.noir {
+td.first-color {
 	background-color: black;
 }
 
-td.blanc {
+td.second-color {
 	background-color: red;
 }
