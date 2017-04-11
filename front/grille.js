@@ -16,6 +16,8 @@ var nbCoup2 = nbCoupLimite;	// nombre de coup disponible pour le joueur2
 var lastPlayTime; 			// Timestamp du dernier coup en secondes
 var labelPlayer1 = "noir";	// nom du premier joueur
 var labelPlayer2 = "blanc";	// nom du second joueur
+var nbTenailles1 = 0;		// nombre de tenailles réalisées par le joueur 1
+var nbTenailles2 = 0;		// nombre de tenailles réalisées par le joueur 2
 
 // Lance l'initialisation de la grille une fois que la page est loadée
 window.addEventListener("load", init, false);
@@ -92,7 +94,12 @@ function play(x, y) {
 
 	// Vérifie les conditions de fin de partie : victoire ou égalité
 	if (rslt = checkWinner(x, y, grid)) endGame("Vainqueur : " + (rslt === 1 ? labelPlayer1 : labelPlayer2));
-	if (!canPlay(nbCoup1, nbCoup2)) endGame("Parie nulle : égalité");
+	if (nbTenailles1 > 0 || nbTenailles2 > 0) {
+		console.log("nbTenailles1 = "+nbTenailles1);
+		console.log("nbTenailles2 = "+nbTenailles2);
+	}
+
+	if (!canPlay(nbCoup1, nbCoup2)) endGame("Partie nulle : égalité");
 
 	// Décrémentation du nombre de jeton du joueur
 	if ((couleurTour === 1 && iaNoir) || (couleurTour === 2 && iaBlanc)) {
@@ -135,6 +142,13 @@ function iaToPlay() {
 			var rslt = iaJoue(grid, couleurTour);
 			continueJeu = true;
 			play(rslt[0], rslt[1]);
+
+			var x = rslt[0];
+			var y = rslt[1];
+			if ((x == 0 && y == 0) || (x == 0 && y == 18) || (x == 18 && y == 0) || (x == 18 && y == 18)) {
+				console.log("x = "+x);
+				console.log("y = "+y);
+			}
 		}, 10); // Au cas où deux ordi jouent ensemble et pour voir le coup pendant que l'IA réfléchit
 	}
 }
@@ -156,23 +170,24 @@ function canPlay(pawnCounter1, pawnCounter2) {
 
 // Vérifie si le dernier coup donne la victoire au joueur en cours
 function checkWinner(x, y, vGrille) {
-	var col = vGrille[x][y]; 	// couleur du jeton qui vient d'être joué
-	var alignH = 1; 			// nombre de jetons alignés horizontalement
-	var alignV = 1; 			// nombre de jetons alignés verticalement
-	var alignD1 = 1; 			// nombre de jetons alignés diagonalement NO-SE
-	var alignD2 = 1; 			// nombre de jetons alignés diagonalement SO-NE
+	var couleurJeton = vGrille[x][y]; 	// couleur du jeton qui vient d'être joué
+	var alignH = 1; 					// nombre de jetons alignés horizontalement
+	var alignV = 1; 					// nombre de jetons alignés verticalement
+	var alignD1 = 1; 					// nombre de jetons alignés diagonalement NO-SE
+	var alignD2 = 1; 					// nombre de jetons alignés diagonalement SO-NE
 	var xt,yt;
+
 
 	// vérification horizontale
 	xt=x-1;
 	yt=y;
-	while (xt >= 0 && vGrille[xt][yt] === col) {
+	while (xt >= 0 && vGrille[xt][yt] === couleurJeton) {
 		xt--;
 		alignH++;
 	}
 	xt=x+1;
 	yt=y;
-	while (xt < nx && vGrille[xt][yt] === col) {
+	while (xt < nx && vGrille[xt][yt] === couleurJeton) {
 		xt++;
 		alignH++;
 	}
@@ -180,13 +195,13 @@ function checkWinner(x, y, vGrille) {
 	// vérification verticale
 	xt=x;
 	yt=y-1;
-	while (yt >= 0 && vGrille[xt][yt] === col) {
+	while (yt >= 0 && vGrille[xt][yt] === couleurJeton) {
 		yt--;
 		alignV++;
 	}
 	xt=x;
 	yt=y+1;
-	while(yt < ny && vGrille[xt][yt] === col){
+	while (yt < ny && vGrille[xt][yt] === couleurJeton) {
 		yt++;
 		alignV++;
 	}
@@ -194,14 +209,14 @@ function checkWinner(x, y, vGrille) {
 	// vérification diagonale NO-SE
 	xt=x-1;
 	yt=y-1;
-	while (xt >= 0 && yt >= 0 && vGrille[xt][yt] === col) {
+	while (xt >= 0 && yt >= 0 && vGrille[xt][yt] === couleurJeton) {
 		xt--;
 		yt--;
 		alignD1++;
 	}
 	xt=x+1;
 	yt=y+1;
-	while (xt < nx && yt < ny && vGrille[xt][yt] === col) {
+	while (xt < nx && yt < ny && vGrille[xt][yt] === couleurJeton) {
 		xt++;
 		yt++;
 		alignD1++;
@@ -210,20 +225,83 @@ function checkWinner(x, y, vGrille) {
 	// Vérification diagonale SO-NE
 	xt=x-1;
 	yt=y+1;
-	while (xt >= 0 && yt < ny && vGrille[xt][yt] === col) {
+	while (xt >= 0 && yt < ny && vGrille[xt][yt] === couleurJeton) {
 		xt--;
 		yt++;
 		alignD2++;
 	}
 	xt=x+1;
 	yt=y-1;
-	while (xt < nx && yt >= 0 && vGrille[xt][yt] === col) {
+	while (xt < nx && yt >= 0 && vGrille[xt][yt] === couleurJeton) {
 		xt++;
 		yt--;
 		alignD2++;
 	}
 
+	// On vérifie si le coup joué n'a pas généré une tenaille
+	// si c'est le cas, on incrémente le compteur du joueur courant
+	checkTenailles(x, y, vGrille);
+
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
-	if (Math.max(alignH, alignV, alignD1, alignD2) >= nbAligne) return col;
+	if (couleurTour === 1) {
+		if (Math.max(alignH, alignV, alignD1, alignD2, nbTenailles1) >= nbAligne) {
+			return couleurJeton;
+		}
+	} else {
+		if (Math.max(alignH, alignV, alignD1, alignD2, nbTenailles2) >= nbAligne) {
+			return couleurJeton;
+		}
+	}
+	
+	return 0;
+}
+
+// Vérifie si le dernier coup créé une tenaille
+// si c'est le cas, on incrémente le compteur du joueur courant
+function checkTenailles(x, y, vGrille) {
+	var couleurJeton = vGrille[x][y]; 	// couleur du jeton qui vient d'être joué
+	var couleurAdv;						// couleur des jetons de l'adversaire
+	var compteurJetonsAdv = 0; 			// compteur permettant de savoir combien de jetons adverses se trouvent entre deux jetons du joueur courant
+	var tenaillesTrouve = 0;			// booléen permettant de savoir si le coup à créé une tenaille
+	var stopRecherche = false;
+	var xt,yt;
+
+	if (couleurJeton == 1) {
+		couleurAdv = 2;
+	} else {
+		couleurAdv = 1;
+	}
+
+	for (i = -1; i <= 1; i++) {
+		for (j = -1; j <= 1; j++) {
+			if ((0 > x+i) || (x+i > 18) || (0 > y+j) || (y+j > 18)
+				|| (0 > x+(2*i)) || (x+(2*i) > 18) || (0 > y+(2*j)) || (y+(2*j) > 18)
+				|| (0 > x+(3*i)) || (x+(3*i) > 18) || (0 > y+(3*j)) || (y+(3*j) > 18)) {
+				continue;
+			}
+
+			if (vGrille[x + i][y + j] === couleurAdv) {
+				if (vGrille[x + (2*i)][j + (2*j)] === couleurAdv) {
+					if (vGrille[x + (3*i)][y + (3*j)] === couleurJeton) {
+						// On est dans le cas d'une tenaille
+						// On supprime les jetons pris en tenaille et on incrémente le compteur de tenailles du joueur
+						vGrille[x + i][y + j] = 0;
+						vGrille[x + (2*i)][j + (2*j)]
+						tenaillesTrouve++;
+					}
+				}
+			}
+		}
+	}
+
+	// Si on a trouvé une tenaille, on incrémente le compteur du joueur
+	if (tenaillesTrouve != 0) {
+		if (couleurTour === 1) {
+			nbTenailles1 += tenaillesTrouve;
+		} else {
+			nbTenailles2 += tenaillesTrouve;
+		}
+	}
+
 	return 0;
 }
