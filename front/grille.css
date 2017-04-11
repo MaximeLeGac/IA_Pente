@@ -11,11 +11,9 @@ td.empty {
 }
 
 td.noir {
-	background-color: #000000;
-	box-shadow: inset 4px 3px 20px -6px #146717;
+	background-color: black;
 }
 
 td.blanc {
-	background-color: #FFFFFF;
-	box-shadow: inset 4px 3px 20px -6px #7f8f8f;
+	background-color: red;
 }

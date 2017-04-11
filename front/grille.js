@@ -4,7 +4,7 @@ var nbAligne = 5; 			// nombre de jetons à aligner pour gagner
 var couleurTour = 1; 		// couleur dont c'est le tour
 var continueJeu = false; 	// permet d'indiquer si le jeu est arrêté ou non
 
-var iaProfondeurMax = 4;	// indique la profondeur de recherche de l'IA
+var iaProfondeurMax = 2;	// indique la profondeur de recherche de l'IA
 var iaNoir = false; 		// indique si le joueur noir est une IA
 var iaBlanc = true; 		// indique si le joueur blanc est une IA
 
@@ -14,13 +14,17 @@ var iaWorker; 				// worker gérant l'IA (si le navigateur supportent les worker
 var elemTable; 				// élément contenant les éléments d'affichage du jeu
 var elemIA; 				// élément indiquant que l'ordinateur réfléchi
 var progressIA; 			// élément permettant d'indiquer où en est l'ordinateur
+var limiteCoup = 30;
+var nbCoup1 = limiteCoup;	// nombre de coup disponible pour le joueur
+var nbCoup2 = limiteCoup;	// nombre de coup disponible pour le joueur
+var lastPlayTime; 			// en secondes
 
 window.addEventListener("load", init, false);
 
-//Initialisation d'une partie
+// Initialisation d'une partie
 function init() {
 
-	//initialisation de la grille
+	// Initialisation de la grille
 	for (var x = 0; x < nx; x++) {
 		grille[x] = [];
 		for (var y = 0; y < ny; y++) {
@@ -28,12 +32,12 @@ function init() {
 		}
 	}
 
-	//suppression de l'élément HTML de la grille précédente
+	// Suppression de la grille précédente dans le DOM
 	if(elemTable) {
 		document.body.removeChild(elemTable);
 	}
 
-	//affichage de la grille de jeu
+	// Affichage de la grille de jeu
 	elemTable = document.createElement("table");
 	var row,cel;
 	for (y = 0; y < ny; y++) {
@@ -58,7 +62,12 @@ function init() {
 	document.body.appendChild(elemTable);
 	couleurTour = 1;
 	continueJeu = true;
-	iaToPlay(); //on vérifie si c'est au tour de l'IA de jouer
+
+	// Force le premier joueur à placer au milieu
+	joue(Math.trunc(nx/2), Math.trunc(ny/2));
+	lastPlayTime = Math.floor(Date.now() / 1000);
+	// On vérifie si c'est au tour de l'IA de jouer
+	iaToPlay(); 
 };
 
 //permet de changer la couleur lors d'un coup
@@ -66,12 +75,27 @@ function changeCouleur(x, y) {
 	grille[x][y] = couleurTour;
 	var elem = document.getElementById("grille"+x+"_"+y);
 	if (elem) {
-		elem.className=couleurTour===1?"noir":"blanc";
+		elem.className = couleurTour === 1 ? "noir" : "blanc";
 	}
 }
 
-//permet de jouer un coup en x,y
+// permet de jouer un coup en x,y
 function joue(x, y) {
+	// Le joueur a 10 secondes pour jouer
+	if (Math.floor(Date.now() / 1000) - lastPlayTime > 10) {
+		alert("Votre temps de jeu est dépassé");
+		couleurTour = couleurTour%2+1;
+		lastPlayTime = Math.floor(Date.now() / 1000);
+		iaToPlay();
+	}
+
+	// Si c'est le 2e coup du premier joueur, il doit être à plus de
+	// 3 intersections du premier jeton
+	if (nbCoup1 == limiteCoup -1  && !((couleurTour === 1 && iaNoir) || (couleurTour === 2 && iaBlanc)) && !checkCoordinate(x, y)) {
+		alert("Vous devez jouer à plus de 3 intersections de votre premier jeton !");
+		return false;
+ 	}
+
 	if (!continueJeu) return false;
 	if (grille[x][y]) return false;
 	var rslt;
@@ -81,27 +105,46 @@ function joue(x, y) {
 	if (rslt = verifVainqueur(x,y)) {
 		continueJeu = false;
 		alert("Vainqueur : " + (rslt === 1 ? "Noir" : "Blanc"));
+		init();
 	}
 
-	if (!verifNbLibre()) {
+	if (!verifNbLibre() || (nbCoup1 == 0 && nbCoup2 == 0)) {
 		continueJeu = false;
 		alert("Parie nulle : égalité");
+		init();
 	}
 
+	if ((couleurTour === 1 && iaNoir) || (couleurTour === 2 && iaBlanc)) {
+		nbCoup1--;
+	} else {
+		nbCoup2--;
+	}
+	lastPlayTime = Math.floor(Date.now() / 1000);
 	iaToPlay();
+
 }
 
-//est-ce que le prochain coup doit être joué par l'IA ?
+// Vérifie si les coordonnées en entrée sont à au moins
+// 3 intersections du centre du la grille
+function checkCoordinate(x, y) {
+	var refX = Math.trunc(nx/2);
+	var refY = Math.trunc(ny/2);
+	return (Math.abs(refX - x) > 3 || Math.abs(refY - y) > 3);
+}
+
+// est-ce que le prochain coup doit être joué par l'IA ?
 function iaToPlay() {
 	if (!continueJeu) return false;
 
+	// On vérifie si c'est le tour de l'IA
 	if ((couleurTour === 1 && iaNoir) || (couleurTour === 2 && iaBlanc)) {
-		continueJeu = false; //pour empêcher un humain de jouer
+		// Pour empêcher un humain de jouer
+		continueJeu = false;
 		setTimeout(function(){
 			var rslt = iaJoue(grille, couleurTour);
 			continueJeu = true;
 			joue(rslt[0], rslt[1]);
-		}, 10); //au cas où deux ordi jouent ensemble et pour voir le coup pendant que l'IA réfléchit
+		}, 10); // Au cas où deux ordi jouent ensemble et pour voir le coup pendant que l'IA réfléchit
 	}
 }
 
