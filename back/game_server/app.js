@@ -3,7 +3,7 @@ var express = require('express');
 var bodyParser  = require('body-parser');
 
 
-var	user = require('./module/module');
+var	module = require('./module/module');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -32,4 +32,4 @@ app.get('/turn/:idJoueur', module.turn);
 
 
 app.listen(port);
-console.log('SERVICE WORKSHOP 2 - Listening on port ' + port + '...');
+console.log('SERVICE WORKSHOP 2 - Game Server - Listening on port ' + port + '...');
