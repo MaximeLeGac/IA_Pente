@@ -3,7 +3,7 @@ var express = require('express');
 var bodyParser  = require('body-parser');
 
 
-var	user = require('./module/user_gateway');
+var	user = require('./module/module');
 
 var app = express();
 var port = process.env.PORT || 3000;
@@ -26,7 +26,9 @@ app.options('/api/*', function (request, response, next) {
 });
 
 
-app.post('/connexion', user.Connexion);
+app.get('/connect/:groupName', module.connexion);
+app.get('/play/:x/:y/idJoueur', module.play);
+app.get('/turn/:idJoueur', module.turn);
 
 
 app.listen(port);
