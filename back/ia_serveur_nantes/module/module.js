@@ -4,9 +4,19 @@ var winningAlignedPawnCount = 5; 	// Nombre de jetons à aligner pour gagner
 
 
 // ==================================================================
-// Gère la réception de la grille à jour
+// Gère la réception de la grille et la prochain coup de l'IA
 exports.handleBoard = function(req, res) {
-	var pawn = placePawn(req.body.board, req.body.player, 0, -Infinity, Infinity)
+	// Récupération des données du service
+	var board 			= req.body.board;
+	var currentPlayer 	= req.body.player;
+	var playerScore 	= req.body.score;
+	var opponentScore 	= req.body.score_vs;
+	var currentRound 	= req.body.round;
+
+	// Calcul du prochain coup
+	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity)
+
+	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
 }
 // ==================================================================
@@ -258,7 +268,7 @@ function getAnalysis(grid, x, y) {
 		estimation += compteur*pLiberte + bonus*pBonus + (1-Math.abs(centre/(compteur-1)-0.5))*compteur*pCentre;
 	}
 
-	if(checkTenailles > 0){
+	if (checkTenailles > 0) {
 		estimation = estimation * (checkTenailles+1)
 	}
 	
