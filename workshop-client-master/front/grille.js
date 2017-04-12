@@ -22,8 +22,8 @@ var turn = 1;
 var turn_running = false;
 
 var players = [
-{name:"player1", ip:"localhost:3001"},
-{name:"player2", ip:"localhost:3001"}
+{name:"player1", ip:"localhost:3000"},
+{name:"player2", ip:"localhost:3000"}
 ]
 
 // Lance l'initialisation de la grille une fois que la page est loadée
