@@ -18,11 +18,11 @@ var labelPlayer1 = "noir";	// nom du premier joueur
 var labelPlayer2 = "rouge";	// nom du second joueur
 var nbTenailles1 = 0;		// nombre de tenailles réalisées par le joueur 1
 var nbTenailles2 = 0;		// nombre de tenailles réalisées par le joueur 
-var turn = 0;
+var turn = 1;
 var turn_running = false;
 
 var players = [
-{name:"player1", ip:"localhost:3000"},
+{name:"player1", ip:"localhost:3001"},
 {name:"player2", ip:"localhost:3001"}
 ]
 
@@ -65,13 +65,15 @@ function init() {
 		}
 	}
 	document.body.appendChild(elemTable);
-	couleurTour = 1;
+	couleurTour = Math.floor(Math.random() * 2) + 1;
+	turn++;
 	continueJeu = true;
 
 	// Force le premier joueur à placer au milieu
 	play(Math.trunc(nx/2), Math.trunc(ny/2));
+	couleurTour = couleurTour%2+1;
 
-	play_game(players[couleurTour - 1], 1, turn)
+	play_game(players[couleurTour - 1], couleurTour, turn)
 
 	lastPlayTime = Math.floor(Date.now() / 1000);
 };
@@ -82,18 +84,25 @@ function play_game(player, numplayer, numturn){
 		$.ajax({
 			method: "PUT",
 			url: "http://" + player.ip + "/board", 
-			data:{
+			data:JSON.stringify({
 				board:grid,
-				score:0,
-				score_vs:0,
+				score:numplayer == 1?nbTenailles1:nbTenailles2,
+				score_vs:numplayer == 1?nbTenailles2:nbTenailles1,
 				player: numplayer,
-				turn: numturn
-			},
+				round: numturn
+			}),
+			contentType: "application/json",
 			success: (res) => {
-				play(res.x, res.y);
-				couleurTour = 1 + ((couleurTour+1) % 2);
-				numturn ++;
-				play_game(players[couleurTour - 1], couleurTour, numturn)
+				var checked = check(res, numturn, grid, new Date().getTime());
+				console.log(res);
+				if(checked.result === 1){
+					play(res.x, res.y);
+					couleurTour = couleurTour%2+1;
+					numturn ++;
+					play_game(players[couleurTour - 1], couleurTour, numturn)		
+				}else{
+					play_game(players[couleurTour - 1], couleurTour, numturn)
+				}
 			}
 		});
 	}, 300);
@@ -102,17 +111,12 @@ function play_game(player, numplayer, numturn){
 // Permet de jouer un pion en x,y
 function play(x, y) {
 	if (!continueJeu) return false;
-	if (grid[x][y]) return false;
-
-	// Le joueur a 10 secondes pour jouer
-	if (Math.floor(Date.now() / 1000) - lastPlayTime > 10) endGame("Vainqueur : " + (couleurTour%2+1 === 1 ? labelPlayer1 : labelPlayer2));
 
 	var rslt;
 	// Change la couleur de la case où le pion est joué
 	grid[x][y] = couleurTour;
-	var elem = document.getElementById("grid_"+x+"_"+y);
-	if (elem) elem.className = couleurTour === 1 ? "first-color" : "second-color";
-	couleurTour = couleurTour%2+1;
+	var elem = $("#grid_"+x+"_"+y);
+	if (elem) elem.attr('class', couleurTour === 1 ? "first-color" : "second-color");
 
 	// On vérifie si le coup joué n'a pas généré une tenaille
 	// si c'est le cas, on incrémente le compteur du joueur courant
@@ -135,9 +139,9 @@ function play(x, y) {
 
 // Mets fin à la partie en indiquant le message en entrée
 function endGame(message) {
+	console.log(message);
 	continueJeu = false;
 	alert(message);
-	init();
 }
 
 // Vérifie s'il reste des coups jouables sur la grille
