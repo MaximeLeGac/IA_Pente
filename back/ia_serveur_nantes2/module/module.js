@@ -61,7 +61,7 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 			for (var y = 0; y < grid[x].length; y++) {
 
 				// On vérifie que pour le 2e pion du joueur est à plus de 3 intersections de son premier jeton
-				if (currentRound == 3 && Math.abs(Math.trunc(grid.length/2) - x) <= 3 && Math.abs(Math.trunc(grid[x].length/2) - y) <= 3) continue;
+				//if (currentRound == 3 && Math.abs(Math.trunc(grid.length/2) - x) <= 3 && Math.abs(Math.trunc(grid[x].length/2) - y) <= 3) continue;
 
 				// Case déjà occupée
 				if (grid[x][y] != 0) continue;
