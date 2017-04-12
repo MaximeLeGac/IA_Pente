@@ -16,7 +16,7 @@ exports.handleBoard = function(req, res) {
 	var currentRound 	= req.body.round;
 
 	// Calcul du prochain coup
-	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore)
+	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -275,6 +275,7 @@ function getAnalysis(grid, x, y) {
 		estimation += compteur*pLiberte + bonus*pBonus + (1-Math.abs(centre/(compteur-1)-0.5))*compteur*pCentre;
 	}
 
+	// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
 	if (checkTenailles > 0) {
 		estimation = estimation * (checkTenailles+1)
 	}
@@ -408,6 +409,7 @@ function checkWinningMove(x, y, grid, playerScore) {
 		alignD2++;
 	}
 
+	// Si il y a le total des tenailles alors on gagne
 	if(checkTenailles(x, y, grid) == winningTenailleCount){
 		return col;
 	}
