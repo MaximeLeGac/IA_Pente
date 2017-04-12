@@ -294,9 +294,8 @@ function getAnalysis(grid, x, y) {
 	}
 
 	// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
-	/*if (checkTenailles > 0) {
-		estimation = estimation * (checkTenailles+1)
-	}*/
+	
+	
 
 	return estimation;
 }
