@@ -16,7 +16,7 @@ exports.handleBoard = function(req, res) {
 	var currentRound 	= req.body.round;
 
 	// Calcul du prochain coup
-	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
+	var pawn = placePawn(board, currentPlayer, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -30,11 +30,11 @@ exports.handleBoard = function(req, res) {
 // Renvoi le prochain coup de l'IA
 // Le placement du pion est choisi suivant l'algorithme MinMax
 // complété par un élagage alpha-beta
-function placePawn(grid, player, depth, alpha, beta, currentRound, playerScore) {
+function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound, playerScore) {
 	if (depth === maxDepth) {
 		// On a atteint la limite de profondeur de calcul on retourne donc une estimation de la position actuelle
 		var eval = evaluate(grid, player);
-		return player === 1 ? eval : -eval;
+		return currentPlayer === player ? eval : -eval;
 	} else {
 		var best = -Infinity;	 		// Estimation du meilleur coup actuel
 		var eval; 						// Estimation de la valeur d'un coup
@@ -63,7 +63,7 @@ function placePawn(grid, player, depth, alpha, beta, currentRound, playerScore) 
 				}
 
 				// Estimation du coup en cours
-				eval = -placePawn(grid, player%2+1, depth+1, -beta, -alpha, currentRound, playerScore);
+				eval = -placePawn(grid, currentPlayer, player%2+1, depth+1, -beta, -alpha, currentRound, playerScore);
 				if (eval > best) {
 					// on vient de trouver un meilleur coup
 					best = eval;
