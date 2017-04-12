@@ -17,3 +17,7 @@ td.first-color {
 td.second-color {
 	background-color: red;
 }
+
+td.no-color {
+	background-color: none;
+}

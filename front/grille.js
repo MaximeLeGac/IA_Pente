@@ -174,7 +174,6 @@ function checkWinner(x, y, vGrille) {
 	var alignD2 = 1; 					// nombre de jetons alignés diagonalement SO-NE
 	var xt,yt;
 
-
 	// vérification horizontale
 	xt=x-1;
 	yt=y;
@@ -282,8 +281,12 @@ function checkTenailles(x, y, vGrille) {
 					if (vGrille[x + (3*i)][y + (3*j)] === couleurJeton) {
 						// On est dans le cas d'une tenaille
 						// On supprime les jetons pris en tenaille et on incrémente le compteur de tenailles du joueur
-						vGrille[x + i][y + j] = 0;
-						vGrille[x + (2*i)][j + (2*j)]
+						vGrille[x+i][y+j] = 0;
+						vGrille[x+(2*i)][y+(2*j)] = 0;
+						
+						document.getElementById("grid_"+(x+i)+"_"+(y+j)).className = "no-color";
+						document.getElementById("grid_"+(x+(2*i))+"_"+(y+(2*j))).className = "no-color";
+
 						tenaillesTrouve++;
 					}
 				}
