@@ -294,9 +294,9 @@ function getAnalysis(grid, x, y) {
 	}
 
 	// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
-	if (checkTenailles > 0) {
+	/*if (checkTenailles > 0) {
 		estimation = estimation * (checkTenailles+1)
-	}
+	}*/
 
 	return estimation;
 }
@@ -429,9 +429,9 @@ function checkWinningMove(x, y, grid, playerScore, isPlayer) {
 	}
 
 	// Si il y a le total des tenailles alors on gagne
-	if(checkTenailles(x, y, grid, isPlayer) == winningTenailleCount){
+	/*if(checkTenailles(x, y, grid, isPlayer) == winningTenailleCount){
 		return col;
-	}
+	}*/
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
 	if (Math.max(alignH, alignV, alignD1, alignD2) >= winningAlignedPawnCount) return col;
