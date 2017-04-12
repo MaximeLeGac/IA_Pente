@@ -1,7 +1,7 @@
 
 var maxDepth = 2;					// Indique la profondeur de recherche de l'IA
 var winningAlignedPawnCount = 5; 	// Nombre de jetons à aligner pour gagner
-
+var winningTenailleCount = 5;
 
 
 
@@ -16,7 +16,7 @@ exports.handleBoard = function(req, res) {
 	var currentRound 	= req.body.round;
 
 	// Calcul du prochain coup
-	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity)
+	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity, playerScore)
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -30,7 +30,7 @@ exports.handleBoard = function(req, res) {
 // Renvoi le prochain coup de l'IA
 // Le placement du pion est choisi suivant l'algorithme MinMax
 // complété par un élagage alpha-beta
-function placePawn(grid, player, depth, alpha, beta) {
+function placePawn(grid, player, depth, alpha, beta, playerScore) {
 	if (depth === maxDepth) {
 		// On a atteint la limite de profondeur de calcul on retourne donc une estimation de la position actuelle
 		var eval = evaluate(grid, player);
@@ -52,7 +52,7 @@ function placePawn(grid, player, depth, alpha, beta) {
 
 				// On vérifie si le coup est gagnant
 				grid[x][y] = player;
-				if (eval = checkWinningMove(x, y, grid)) {
+				if (eval = checkWinningMove(x, y, grid, playerScore)) {
 					// Restauration de la grille
 					grid[x][y] = 0;
 					if (!depth) return [x,y];
@@ -60,7 +60,7 @@ function placePawn(grid, player, depth, alpha, beta) {
 				}
 
 				// Estimation du coup en cours
-				eval = -placePawn(grid, player%2+1, depth+1, -beta, -alpha);
+				eval = -placePawn(grid, player%2+1, depth+1, -beta, -alpha, playerScore);
 				if (eval > best) {
 					// on vient de trouver un meilleur coup
 					best = eval;
@@ -275,7 +275,7 @@ function getAnalysis(grid, x, y) {
 	if (checkTenailles > 0) {
 		estimation = estimation * (checkTenailles+1)
 	}
-	
+
 	return estimation;
 }
 // ==================================================================
@@ -336,7 +336,7 @@ function checkTenailles(x, y, vGrille) {
 
 // ==================================================================
 // Vérifie si un coup donne la victoire au joueur
-function checkWinningMove(x, y, grid) {
+function checkWinningMove(x, y, grid, playerScore) {
 	var col = grid[x][y]; 		// Couleur du jeton qui vient d'être joué
 	var alignH = 1; 			// Nombre de jetons alignés horizontalement
 	var alignV = 1; 			// Nombre de jetons alignés verticalement
@@ -403,6 +403,10 @@ function checkWinningMove(x, y, grid) {
 		xt++;
 		yt--;
 		alignD2++;
+	}
+
+	if(checkTenailles(x, y, grid) == winningTenailleCount){
+		return col;
 	}
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
