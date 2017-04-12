@@ -25,7 +25,6 @@ exports.handleBoard = function(req, res) {
 
 
 
-
 // ==================================================================
 // Renvoi le prochain coup de l'IA
 // Le placement du pion est choisi suivant l'algorithme MinMax
@@ -36,9 +35,9 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 		var eval = evaluate(grid, player);
 		return currentPlayer === player ? eval : -eval;
 	} else {
-		var best = -Infinity;	 		// Estimation du meilleur coup actuel
-		var eval; 						// Estimation de la valeur d'un coup
-		var currentTry = null; 			// Meilleur coup actuel
+		var best = -Infinity;	// Estimation du meilleur coup actuel
+		var eval; 				// Estimation de la valeur d'un coup
+		var currentTry = null; 	// Meilleur coup actuel
 
 		// On parcourt la grille pour tester toutes les combinaisons possibles
 		for (var x = 0; x < grid.length; x++) {
@@ -65,15 +64,15 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 				// Estimation du coup en cours
 				eval = -placePawn(grid, currentPlayer, player%2+1, depth+1, -beta, -alpha, currentRound, playerScore);
 				if (eval > best) {
-					// on vient de trouver un meilleur coup
+					// On vient de trouver un meilleur coup
 					best = eval;
 					if (best > alpha) {
 						alpha = best;
 						currentTry = [x,y];
 						if (alpha >= beta) {
-							/*ce coup est mieux que le meilleur des coups qui aurait pu être joué si on avait joué un autre
-							coup. Cela signifie que jouer le coup qui a amené cette position n'est pas bon. Il est inutile
-							de continuer à estimer les autres possibilités de cette position (principe de l'élagage alpha-beta). */
+							// Ce coup est mieux que le meilleur des coups qui aurait pu être joué si on avait joué un autre coup.
+							// Cela signifie que jouer le coup qui a amené cette position n'est pas bon.
+							// Il est inutile de continuer à estimer les autres possibilités de cette position (principe de l'élagage alpha-beta).
 							// Restauration de la grille
 							grid[x][y] = 0;
 							if (!depth) return currentTry;
@@ -98,6 +97,7 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 // ==================================================================
 
 
+
 // ==================================================================
 // Permet d'évaluer chaque position de la grille
 function evaluate(grid, currentPlayer) {
@@ -120,19 +120,20 @@ function evaluate(grid, currentPlayer) {
 // ==================================================================
 
 
+
 // ==================================================================
 // Permet de calculer le nombre de "libertés" pour la case donnée
 function getAnalysis(grid, x, y) {
 	var couleur = grid[x][y];
-	var estimation = 0; // estimation pour toutes les directions
-	var compteur = 0; 	// compte le nombre de possibilités pour une direction
-	var centre = 0; 	// regarde si le jeton a de l'espace de chaque côté
-	var bonus = 0; 		// point bonus liée aux jetons alliés dans cette même direction
-	var i,j; 			// pour les coordonnées temporaires
-	var pass = false; 	// permet de voir si on a passé la case étudiée
-	var pLiberte = 1; 	// pondération sur le nombre de liberté
-	var pBonus = 1; 	// pondération Bonus
-	var pCentre = 2; 	// pondération pour l'espace situé de chaque côté
+	var estimation = 0; // Estimation pour toutes les directions
+	var compteur = 0; 	// Compte le nombre de possibilités pour une direction
+	var centre = 0; 	// Regarde si le jeton a de l'espace de chaque côté
+	var bonus = 0; 		// Point bonus liée aux jetons alliés dans cette même direction
+	var i,j; 			// Pour les coordonnées temporaires
+	var pass = false; 	// Permet de voir si on a passé la case étudiée
+	var pLiberte = 1; 	// Pondération sur le nombre de liberté
+	var pBonus = 1; 	// Pondération Bonus
+	var pCentre = 2; 	// Pondération pour l'espace situé de chaque côté
 
 	// Recherche horizontale
 	for (i = 0; i < grid.length; i++) {
@@ -142,18 +143,18 @@ function getAnalysis(grid, x, y) {
 			continue;
 		}
 		switch (grid[i][y]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse
+			default: // Jeton adverse
 				if (pass) {
-					i = grid.length; //il n'y aura plus de liberté supplémentaire, on arrête la recherche ici
+					i = grid.length; // Il n'y aura plus de liberté supplémentaire, on arrête la recherche ici
 				} else {
-					// on réinitialise la recherche
+					// On réinitialise la recherche
 					compteur = 0;
 					bonus = 0;
 				}
@@ -175,18 +176,18 @@ function getAnalysis(grid, x, y) {
 			continue;
 		}
 		switch (grid[x][j]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse
+			default: // Jeton adverse
 				if (pass) {
-					j = grid[x].length; // il n'y aura plus de liberté supplémentaire, on arrête la recherche ici
+					j = grid[x].length; // Il n'y aura plus de liberté supplémentaire, on arrête la recherche ici
 				} else {
-					// on réinitialise la recherche
+					// On réinitialise la recherche
 					compteur = 0;
 					bonus = 0;
 				}
@@ -204,14 +205,14 @@ function getAnalysis(grid, x, y) {
 	j = y;
 	while (i-->0 && j-->0) {
 		switch (grid[i][j]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse, on arrête de rechercher
+			default: // Jeton adverse, on arrête de rechercher
 				i = 0;
 		}
 	}
@@ -220,19 +221,19 @@ function getAnalysis(grid, x, y) {
 	j = y;
 	while (++i<grid.length && ++j<grid[x].length) {
 		switch (grid[i][j]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse, on arrête de rechercher
+			default: // Jeton adverse, on arrête de rechercher
 				i = grid.length;
 		}
 	}
 	if (compteur >= winningAlignedPawnCount) {
-		// il est possible de gagner dans cette direction
+		// Il est possible de gagner dans cette direction
 		estimation += compteur*pLiberte + bonus*pBonus + (1-Math.abs(centre/(compteur-1)-0.5))*compteur*pCentre;
 	}
 
@@ -243,14 +244,14 @@ function getAnalysis(grid, x, y) {
 	j = y;
 	while (i-->0 && ++j<grid[x].length) {
 		switch (grid[i][j]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse, on arrête de rechercher
+			default: // Jeton adverse, on arrête de rechercher
 				i = 0;
 		}
 	}
@@ -259,14 +260,14 @@ function getAnalysis(grid, x, y) {
 	j = y;
 	while (++i<grid.length && j-->0) {
 		switch (grid[i][j]) {
-			case 0: // case vide
+			case 0: // Case vide
 				compteur++;
 				break;
-			case couleur: // jeton allié
+			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
 				break;
-			default: // jeton adverse, on arrête de rechercher
+			default: // Jeton adverse, on arrête de rechercher
 				i = grid.length;
 		}
 	}
@@ -284,13 +285,16 @@ function getAnalysis(grid, x, y) {
 }
 // ==================================================================
 
+
+
+// ==================================================================
 // Vérifie si le dernier coup créé une tenaille
 // si c'est le cas, on incrémente le compteur du joueur courant
 function checkTenailles(x, y, vGrille) {
-	var couleurJeton = vGrille[x][y]; 	// couleur du jeton qui vient d'être joué
-	var couleurAdv;						// couleur des jetons de l'adversaire
-	var compteurJetonsAdv = 0; 			// compteur permettant de savoir combien de jetons adverses se trouvent entre deux jetons du joueur courant
-	var tenaillesTrouve = 0;			// booléen permettant de savoir si le coup à créé une tenaille
+	var couleurJeton = vGrille[x][y]; 	// Couleur du jeton qui vient d'être joué
+	var couleurAdv;						// Couleur des jetons de l'adversaire
+	var compteurJetonsAdv = 0; 			// Compteur permettant de savoir combien de jetons adverses se trouvent entre deux jetons du joueur courant
+	var tenaillesTrouve = 0;			// Booléen permettant de savoir si le coup à créé une tenaille
 	var stopRecherche = false;
 	var xt,yt;
 
@@ -315,10 +319,8 @@ function checkTenailles(x, y, vGrille) {
 						// On supprime les jetons pris en tenaille et on incrémente le compteur de tenailles du joueur
 						vGrille[x+i][y+j] = 0;
 						vGrille[x+(2*i)][y+(2*j)] = 0;
-						
 						document.getElementById("grid_"+(x+i)+"_"+(y+j)).className = "no-color";
 						document.getElementById("grid_"+(x+(2*i))+"_"+(y+(2*j))).className = "no-color";
-
 						tenaillesTrouve++;
 					}
 				}
@@ -334,18 +336,20 @@ function checkTenailles(x, y, vGrille) {
 			nbTenailles2 += tenaillesTrouve;
 		}
 	}
-
 	return tenaillesTrouve;
 }
+// ==================================================================
+
+
 
 // ==================================================================
 // Vérifie si un coup donne la victoire au joueur
 function checkWinningMove(x, y, grid, playerScore) {
-	var col = grid[x][y]; 		// Couleur du jeton qui vient d'être joué
-	var alignH = 1; 			// Nombre de jetons alignés horizontalement
-	var alignV = 1; 			// Nombre de jetons alignés verticalement
-	var alignD1 = 1; 			// Nombre de jetons alignés diagonalement NO-SE
-	var alignD2 = 1; 			// Nombre de jetons alignés diagonalement SO-NE
+	var col = grid[x][y]; 	// Couleur du jeton qui vient d'être joué
+	var alignH = 1; 		// Nombre de jetons alignés horizontalement
+	var alignV = 1; 		// Nombre de jetons alignés verticalement
+	var alignD1 = 1; 		// Nombre de jetons alignés diagonalement NO-SE
+	var alignD2 = 1; 		// Nombre de jetons alignés diagonalement SO-NE
 	var xt,yt;
 	
 	// Vérification horizontale (gauche)
@@ -419,6 +423,7 @@ function checkWinningMove(x, y, grid, playerScore) {
 	return 0;
 }
 // ==================================================================
+
 
 
 // ==================================================================
