@@ -9,11 +9,28 @@ var winningTenailleCount = 5;
 // Gère la réception de la grille et la prochain coup de l'IA
 exports.handleBoard = function(req, res) {
 	// Récupération des données du service
-	var board 			= req.body.board;
-	var currentPlayer 	= req.body.player;
-	var playerScore 	= req.body.score;
-	var opponentScore 	= req.body.score_vs;
-	var currentRound 	= req.body.round;
+	var board 			= [];
+	var currentPlayer 	= 0;
+	var playerScore 	= 0;
+	var opponentScore 	= 0;
+	var currentRound 	= 0;
+
+	if(Array.isArray(req.body.board)){
+		board 			= req.body.board
+	}
+	if(isInt(currentPlayer)){
+		currentPlayer 	= req.body.player;
+	}
+	if(isInt(req.body.score)){
+		playerScore 	= req.body.score;
+	}
+	if(isInt(req.body.score_vs)){
+		opponentScore 	= req.body.score_vs;
+	}
+	if(isInt(req.body.round)){
+		currentRound 	= req.body.round;
+	}
+
 
 	// Calcul du prochain coup
 	var pawn = placePawn(board, currentPlayer, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
