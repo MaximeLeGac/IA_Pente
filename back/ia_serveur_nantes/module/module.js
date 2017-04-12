@@ -3,6 +3,8 @@ var maxDepth = 2;					// Indique la profondeur de recherche de l'IA
 var winningAlignedPawnCount = 5; 	// Nombre de jetons à aligner pour gagner
 
 
+
+
 // ==================================================================
 // Gère la réception de la grille à jour
 exports.handleBoard = function(req, res) {
@@ -10,6 +12,8 @@ exports.handleBoard = function(req, res) {
 	res.json({ x: pawn[0], y: pawn[1] });
 }
 // ==================================================================
+
+
 
 
 // ==================================================================
