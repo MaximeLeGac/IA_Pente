@@ -258,10 +258,67 @@ function getAnalysis(grid, x, y) {
 		estimation += compteur*pLiberte + bonus*pBonus + (1-Math.abs(centre/(compteur-1)-0.5))*compteur*pCentre;
 	}
 
+	if(checkTenailles > 0){
+		estimation = estimation * (checkTenailles+1)
+	}
+	
 	return estimation;
 }
 // ==================================================================
 
+// Vérifie si le dernier coup créé une tenaille
+// si c'est le cas, on incrémente le compteur du joueur courant
+function checkTenailles(x, y, vGrille) {
+	var couleurJeton = vGrille[x][y]; 	// couleur du jeton qui vient d'être joué
+	var couleurAdv;						// couleur des jetons de l'adversaire
+	var compteurJetonsAdv = 0; 			// compteur permettant de savoir combien de jetons adverses se trouvent entre deux jetons du joueur courant
+	var tenaillesTrouve = 0;			// booléen permettant de savoir si le coup à créé une tenaille
+	var stopRecherche = false;
+	var xt,yt;
+
+	if (couleurJeton == 1) {
+		couleurAdv = 2;
+	} else {
+		couleurAdv = 1;
+	}
+
+	for (i = -1; i <= 1; i++) {
+		for (j = -1; j <= 1; j++) {
+			if ((0 > x+i) || (x+i > 18) || (0 > y+j) || (y+j > 18)
+				|| (0 > x+(2*i)) || (x+(2*i) > 18) || (0 > y+(2*j)) || (y+(2*j) > 18)
+				|| (0 > x+(3*i)) || (x+(3*i) > 18) || (0 > y+(3*j)) || (y+(3*j) > 18)) {
+				continue;
+			}
+
+			if (vGrille[x + i][y + j] === couleurAdv) {
+				if (vGrille[x + (2*i)][y + (2*j)] === couleurAdv) {
+					if (vGrille[x + (3*i)][y + (3*j)] === couleurJeton) {
+						// On est dans le cas d'une tenaille
+						// On supprime les jetons pris en tenaille et on incrémente le compteur de tenailles du joueur
+						vGrille[x+i][y+j] = 0;
+						vGrille[x+(2*i)][y+(2*j)] = 0;
+						
+						document.getElementById("grid_"+(x+i)+"_"+(y+j)).className = "no-color";
+						document.getElementById("grid_"+(x+(2*i))+"_"+(y+(2*j))).className = "no-color";
+
+						tenaillesTrouve++;
+					}
+				}
+			}
+		}
+	}
+
+	// Si on a trouvé une tenaille, on incrémente le compteur du joueur
+	if (tenaillesTrouve != 0) {
+		if (couleurTour === 1) {
+			nbTenailles1 += tenaillesTrouve;
+		} else {
+			nbTenailles2 += tenaillesTrouve;
+		}
+	}
+
+	return tenaillesTrouve;
+}
 
 // ==================================================================
 // Vérifie si un coup donne la victoire au joueur
