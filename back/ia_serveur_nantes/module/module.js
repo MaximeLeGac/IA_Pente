@@ -14,7 +14,7 @@ exports.handleBoard = function(req, res) {
 	var currentRound 	= req.body.round;
 
 	// Calcul du prochain coup
-	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity)
+	var pawn = placePawn(board, currentPlayer, 0, -Infinity, Infinity, currentRound)
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -26,7 +26,7 @@ exports.handleBoard = function(req, res) {
 // Renvoi le prochain coup de l'IA
 // Le placement du pion est choisi suivant l'algorithme MinMax
 // complété par un élagage alpha-beta
-function placePawn(grid, player, depth, alpha, beta) {
+function placePawn(grid, player, depth, alpha, beta, currentRound) {
 	if (depth === maxDepth) {
 		// On a atteint la limite de profondeur de calcul on retourne donc une estimation de la position actuelle
 		var eval = evaluate(grid, player);
@@ -39,6 +39,9 @@ function placePawn(grid, player, depth, alpha, beta) {
 		// On parcourt la grille pour tester toutes les combinaisons possibles
 		for (var x = 0; x < grid.length; x++) {
 			for (var y = 0; y < grid[x].length; y++) {
+
+				// On vérifie que pour le 2e pion du joueur est à plus de 3 intersections de son premier jeton
+				if (currentRound == 3 && Math.abs(Math.trunc(grid.length/2) - x) <= 3 && Math.abs(Math.trunc(grid[x].length/2) - y) <= 3) continue;
 
 				// Case déjà occupée
 				if (grid[x][y]) continue;
@@ -56,7 +59,7 @@ function placePawn(grid, player, depth, alpha, beta) {
 				}
 
 				// Estimation du coup en cours
-				eval = -placePawn(grid, player%2+1, depth+1, -beta, -alpha);
+				eval = -placePawn(grid, player%2+1, depth+1, -beta, -alpha, currentRound);
 				if (eval > best) {
 					// on vient de trouver un meilleur coup
 					best = eval;
