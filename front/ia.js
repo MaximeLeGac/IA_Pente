@@ -69,12 +69,13 @@ function iaAlphaBeta(grille, couleur, profondeur, alpha, beta){
 		else if (coup) {
 			return meilleur;
 		}
-		return 0; // si coup n'a jamais été défini c'est qu'il n'y a plus de possibilité de jeu. C'est partie nulle.
+		// Si le coup n'a jamais été défini c'est qu'il n'y a plus de possibilité de jeu
+		return 0; 
 	}
 }
 
 
-// permet d'estimer la position
+// Permet d'estimer la position
 function iaEstimation(grille) {
 	var estimation = 0; // Estimation globale de la position
 	for (var x = 0; x < nx; x++) {
