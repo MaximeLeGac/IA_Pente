@@ -16,19 +16,19 @@ exports.handleBoard = function(req, res) {
 	var opponentScore 	= 0;
 	var currentRound 	= 0;
 
-	if(Array.isArray(req.body.board)){
+	if (Array.isArray(req.body.board)) {
 		board 			= req.body.board
 	}
-	if(isInt(currentPlayer)){
+	if (Number.isInteger(currentPlayer)) {
 		currentPlayer 	= req.body.player;
 	}
-	if(isInt(req.body.score)){
+	if (Number.isInteger(req.body.score)) {
 		playerScore 	= req.body.score;
 	}
-	if(isInt(req.body.score_vs)){
+	if (Number.isInteger(req.body.score_vs)) {
 		opponentScore 	= req.body.score_vs;
 	}
-	if(isInt(req.body.round)){
+	if (Number.isInteger(req.body.round)) {
 		currentRound 	= req.body.round;
 	}
 
@@ -64,7 +64,7 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 				if (currentRound == 3 && Math.abs(Math.trunc(grid.length/2) - x) <= 3 && Math.abs(Math.trunc(grid[x].length/2) - y) <= 3) continue;
 
 				// Case déjà occupée
-				if (grid[x][y]) continue;
+				if (grid[x][y] != 0) continue;
 
 				// Initialisation du premier coup
 				if (!currentTry) currentTry = [x,y];
