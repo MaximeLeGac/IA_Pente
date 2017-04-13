@@ -149,7 +149,7 @@ function getAnalysis(grid, x, y, isPlayer, depth) {
 	var i,j; 			// Pour les coordonnées temporaires
 	var pass = false; 	// Permet de voir si on a passé la case étudiée
 	var pLiberte = 1; 	// Pondération sur le nombre de liberté
-	var pBonus = 1.5; 	// Pondération Bonus
+	var pBonus = !isPlayer ? 2 : 1; 	// Pondération Bonus
 	var pCentre = 2; 	// Pondération pour l'espace situé de chaque côté
 	var start = 0;		// start pour recherche sur une porter de 6
 	var end = 0;		// end pour une recherche sur une porter de 6
@@ -312,7 +312,8 @@ function getAnalysis(grid, x, y, isPlayer, depth) {
 		// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
 		var nbTenaillesTrouve = checkTenailles(x, y, grid, 0, 0, isPlayer);
 		if (nbTenaillesTrouve) {
-			estimation *= (isPlayer ? nbTenaillesTrouve * 4 : nbTenaillesTrouve)
+			estimation *= (isPlayer ? nbTenaillesTrouve : nbTenaillesTrouve * 4);
+			//estimation *=  (nbTenaillesTrouve+100);
 		}
 	}
 
@@ -423,7 +424,7 @@ function checkWinningMove(x, y, grid, playerScore, opponentScore, isPlayer, dept
 	}
 
 	// Si il y a le total des tenailles alors on gagne
-	if (checkTenailles(x, y, grid, playerScore, opponentScore, isPlayer) == winningTenailleCount) return col;
+	//if (depth <= 1 && checkTenailles(x, y, grid, playerScore, opponentScore, isPlayer) == winningTenailleCount) return col;
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
 	if (Math.max(alignH, alignV, alignD1, alignD2) >= winningAlignedPawnCount) return col;
