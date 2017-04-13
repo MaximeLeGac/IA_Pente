@@ -2,8 +2,6 @@
 var maxDepth = 2;					// Indique la profondeur de recherche de l'IA
 var winningAlignedPawnCount = 5; 	// Nombre de jetons à aligner pour gagner
 var winningTenailleCount = 5;
-var nbTenailles1 = 0;
-var nbTenailles2 = 0;
 
 
 
@@ -35,8 +33,7 @@ exports.handleBoard = function(req, res) {
 	}
 
 	// Calcul du prochain coup
-	var pawn = placePawn(board, currentPlayer, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
-	checkTenailles(pawn[0], pawn[1], board, true, true);
+	var pawn = placePawn(board, currentPlayer, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore, opponentScore);
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -49,7 +46,7 @@ exports.handleBoard = function(req, res) {
 // Renvoi le prochain coup de l'IA
 // Le placement du pion est choisi suivant l'algorithme MinMax
 // complété par un élagage alpha-beta
-function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound, playerScore) {
+function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound, playerScore, opponentScore) {
 	if (depth === maxDepth) {
 		// On a atteint la limite de profondeur de calcul on retourne donc une estimation de la position actuelle
 		var eval = evaluate(grid, player);
@@ -74,7 +71,7 @@ function placePawn(grid, currentPlayer, player, depth, alpha, beta, currentRound
 
 				// On vérifie si le coup est gagnant
 				grid[x][y] = player;
-				if (eval = checkWinningMove(x, y, grid, playerScore, currentPlayer === player)) {
+				if (eval = checkWinningMove(x, y, grid, playerScore, opponentScore, currentPlayer === player)) {
 					// Restauration de la grille
 					grid[x][y] = 0;
 					if (!depth) return [x,y];
@@ -128,10 +125,10 @@ function evaluate(grid, currentPlayer) {
 			if (!grid[x][y]) continue;
 			// Estimation de la valeur de ce jeton et ajout au calcul d'estimation global
 			if (grid[x][y] == currentPlayer) {
-				eval += getAnalysis(grid, x, y);
+				eval += getAnalysis(grid, x, y, true);
 			}
 			else {
-				eval -= getAnalysis(grid, x, y);
+				eval -= getAnalysis(grid, x, y, false);
 			}
 		}
 	}
@@ -143,7 +140,7 @@ function evaluate(grid, currentPlayer) {
 
 // ==================================================================
 // Permet de calculer le nombre de "libertés" pour la case donnée
-function getAnalysis(grid, x, y) {
+function getAnalysis(grid, x, y, isPlayer) {
 	var couleur = grid[x][y];
 	var estimation = 0; // Estimation pour toutes les directions
 	var compteur = 0; 	// Compte le nombre de possibilités pour une direction
@@ -316,9 +313,11 @@ function getAnalysis(grid, x, y) {
 	}
 
 	// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
+	/*var nbTenaillesTrouve = checkTenailles(x, y, grid, isPlayer);
+	if (nbTenaillesTrouve > 0) {
+		estimation = estimation + (nbTenaillesTrouve+1)
+	}*/
 	
-	
-
 	return estimation;
 }
 // ==================================================================
@@ -328,7 +327,7 @@ function getAnalysis(grid, x, y) {
 // ==================================================================
 // Vérifie si le dernier coup créé une tenaille
 // si c'est le cas, on incrémente le compteur du joueur courant
-function checkTenailles(x, y, vGrille, isPlayer, hasPlayed) {
+function checkTenailles(x, y, vGrille, playerScore, opponentScore, isPlayer) {
 	var couleurJeton = vGrille[x][y]; 	// Couleur du jeton qui vient d'être joué
 	var couleurAdv;						// Couleur des jetons de l'adversaire
 	var tenaillesTrouve = 0;			// Booléen permettant de savoir si le coup à créé une tenaille
@@ -362,17 +361,15 @@ function checkTenailles(x, y, vGrille, isPlayer, hasPlayed) {
 	}
 
 	// Si l'on a trouvé une tenaille, on incrémente le compteur du joueur
-	if (hasPlayed) {
-		if (tenaillesTrouve != 0) {
-			if (isPlayer) {
-				nbTenailles1 += tenaillesTrouve;
-			} else {
-				nbTenailles2 += tenaillesTrouve;
-			}
+	if (tenaillesTrouve != 0) {
+		if (isPlayer) {
+			return playerScore + tenaillesTrouve;
+		} else {
+			return opponentScore + tenaillesTrouve;
 		}
 	}
 
-	return tenaillesTrouve;
+	return 0;
 }
 // ==================================================================
 
@@ -380,7 +377,7 @@ function checkTenailles(x, y, vGrille, isPlayer, hasPlayed) {
 
 // ==================================================================
 // Vérifie si un coup donne la victoire au joueur
-function checkWinningMove(x, y, grid, playerScore, isPlayer) {
+function checkWinningMove(x, y, grid, playerScore, opponentScore, isPlayer) {
 	var col = grid[x][y]; 	// Couleur du jeton qui vient d'être joué
 	var alignH = 1; 		// Nombre de jetons alignés horizontalement
 	var alignV = 1; 		// Nombre de jetons alignés verticalement
@@ -450,7 +447,7 @@ function checkWinningMove(x, y, grid, playerScore, isPlayer) {
 	}
 
 	// Si il y a le total des tenailles alors on gagne
-	if(checkTenailles(x, y, grid, isPlayer, false) == winningTenailleCount){
+	if(checkTenailles(x, y, grid, playerScore, opponentScore, isPlayer) == winningTenailleCount){
 		return col;
 	}
 
