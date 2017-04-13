@@ -313,10 +313,10 @@ function getAnalysis(grid, x, y, isPlayer) {
 	}
 
 	// Augmente la note si nous decouvrons une tenaille dans notre coup eventuelle
-	/*var nbTenaillesTrouve = checkTenailles(x, y, grid, isPlayer);
+	var nbTenaillesTrouve = checkTenailles(x, y, grid, 0, 0, isPlayer);
 	if (nbTenaillesTrouve > 0) {
-		estimation = estimation + (nbTenaillesTrouve+1)
-	}*/
+		estimation = estimation * (nbTenaillesTrouve+1)
+	}
 	
 	return estimation;
 }
@@ -362,6 +362,7 @@ function checkTenailles(x, y, vGrille, playerScore, opponentScore, isPlayer) {
 
 	// Si l'on a trouvé une tenaille, on incrémente le compteur du joueur
 	if (tenaillesTrouve != 0) {
+		//console.log("tenaillesTrouve = "+tenaillesTrouve);
 		if (isPlayer) {
 			return playerScore + tenaillesTrouve;
 		} else {
