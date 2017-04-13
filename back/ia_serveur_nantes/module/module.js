@@ -151,9 +151,14 @@ function getAnalysis(grid, x, y) {
 	var pLiberte = 1; 	// Pondération sur le nombre de liberté
 	var pBonus = 1; 	// Pondération Bonus
 	var pCentre = 2; 	// Pondération pour l'espace situé de chaque côté
+	var start = 0;		// start pour recherche sur une porter de 6
+	var end = 0;		// end pour une recherche sur une porter de 6
 
+
+	start = (x-6 < 0 ? 0 : x-6);
+	end = (x + 6 > grid.length-1 ? grid.length-1 : x +6);
 	// Recherche horizontale
-	for (i = 0; i < grid.length; i++) {
+	for (i = start; i < end; i++) {
 		if (i == x) {
 			centre = compteur++;
 			pass = true;
@@ -182,11 +187,14 @@ function getAnalysis(grid, x, y) {
 		estimation += compteur*pLiberte + bonus*pBonus + (1-Math.abs(centre/(compteur-1)-0.5))*compteur*pCentre;
 	}
 
+
+	start = (y-6 < 0 ? 0 : y-6);
+	end = (y + 6 > grid[x].length-1 ? grid[x].length - 1 : y + 6);
 	// Recherche verticale
 	compteur = 0;
 	bonus = 0;
 	pass = false;
-	for (j = 0; j < grid[x].length; j++) {
+	for (j = start; j < end; j++) {
 		if (j == y) {
 			centre = compteur++;
 			pass = true;
