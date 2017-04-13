@@ -228,7 +228,9 @@ function getAnalysis(grid, x, y) {
 	bonus = 0;
 	i = x;
 	j = y;
-	while (i-->0 && j-->0) {
+	start = (x-6 < 0 ? 0 : x-6);
+	end = (y-6 < 0 ? 0 : y-6);
+	while (i-->start && j-->end) {
 		switch (grid[i][j]) {
 			case 0: // Case vide
 				compteur++;
@@ -244,7 +246,10 @@ function getAnalysis(grid, x, y) {
 	centre = compteur++;
 	i = x;
 	j = y;
-	while (++i<grid.length && ++j<grid[x].length) {
+	start = (x + 6 > grid.length-1 ? grid.length-1 : x +6);
+	end = (y + 6 > grid[x].length-1 ? grid[x].length - 1 : y + 6);
+	//while (++i<grid.length && ++j<grid[x].length) {
+		while (++i<start && ++j<end) {
 		switch (grid[i][j]) {
 			case 0: // Case vide
 				compteur++;
@@ -267,7 +272,10 @@ function getAnalysis(grid, x, y) {
 	bonus = 0;
 	i = x;
 	j = y;
-	while (i-->0 && ++j<grid[x].length) {
+	start = (x-6 < 0 ? 0 : x-6);
+	end = (y + 6 > grid[x].length-1 ? grid[x].length - 1 : y + 6);
+	//while (i-->0 && ++j<grid[x].length) {
+	while (i-->start && ++j<end) {
 		switch (grid[i][j]) {
 			case 0: // Case vide
 				compteur++;
@@ -283,7 +291,10 @@ function getAnalysis(grid, x, y) {
 	centre = compteur++;
 	i = x;
 	j = y;
-	while (++i<grid.length && j-->0) {
+	start = (x + 6 > grid.length-1 ? grid.length-1 : x +6);
+	end = (y-6 < 0 ? 0 : y-6);
+	//while (++i<grid.length && j-->0) {
+	while (++i<start && j-->end) {
 		switch (grid[i][j]) {
 			case 0: // Case vide
 				compteur++;
