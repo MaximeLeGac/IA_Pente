@@ -2,6 +2,8 @@
 var maxDepth = 2;					// Indique la profondeur de recherche de l'IA
 var winningAlignedPawnCount = 5; 	// Nombre de jetons à aligner pour gagner
 var winningTenailleCount = 5;
+var nbTenailles1 = 0;
+var nbTenailles2 = 0;
 
 
 
@@ -34,6 +36,7 @@ exports.handleBoard = function(req, res) {
 
 	// Calcul du prochain coup
 	var pawn = placePawn(board, currentPlayer, currentPlayer, 0, -Infinity, Infinity, currentRound, playerScore);
+	checkTenailles(pawn[0], pawn[1], board, true, true);
 
 	// Envoi du pion au client
 	res.json({ x: pawn[0], y: pawn[1] });
@@ -325,13 +328,10 @@ function getAnalysis(grid, x, y) {
 // ==================================================================
 // Vérifie si le dernier coup créé une tenaille
 // si c'est le cas, on incrémente le compteur du joueur courant
-function checkTenailles(x, y, vGrille, isPlayer) {
+function checkTenailles(x, y, vGrille, isPlayer, hasPlayed) {
 	var couleurJeton = vGrille[x][y]; 	// Couleur du jeton qui vient d'être joué
 	var couleurAdv;						// Couleur des jetons de l'adversaire
-	var compteurJetonsAdv = 0; 			// Compteur permettant de savoir combien de jetons adverses se trouvent entre deux jetons du joueur courant
 	var tenaillesTrouve = 0;			// Booléen permettant de savoir si le coup à créé une tenaille
-	var stopRecherche = false;
-	var xt,yt;
 
 	if (couleurJeton == 1) {
 		couleurAdv = 2;
@@ -361,14 +361,17 @@ function checkTenailles(x, y, vGrille, isPlayer) {
 		}
 	}
 
-	// Si on a trouvé une tenaille, on incrémente le compteur du joueur
-	if (tenaillesTrouve != 0) {
-		if (isPlayer) {
-			nbTenailles1 += tenaillesTrouve;
-		} else {
-			nbTenailles2 += tenaillesTrouve;
+	// Si l'on a trouvé une tenaille, on incrémente le compteur du joueur
+	if (hasPlayed) {
+		if (tenaillesTrouve != 0) {
+			if (isPlayer) {
+				nbTenailles1 += tenaillesTrouve;
+			} else {
+				nbTenailles2 += tenaillesTrouve;
+			}
 		}
 	}
+
 	return tenaillesTrouve;
 }
 // ==================================================================
@@ -447,9 +450,9 @@ function checkWinningMove(x, y, grid, playerScore, isPlayer) {
 	}
 
 	// Si il y a le total des tenailles alors on gagne
-	/*if(checkTenailles(x, y, grid, isPlayer) == winningTenailleCount){
+	if(checkTenailles(x, y, grid, isPlayer, false) == winningTenailleCount){
 		return col;
-	}*/
+	}
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
 	if (Math.max(alignH, alignV, alignD1, alignD2) >= winningAlignedPawnCount) return col;
