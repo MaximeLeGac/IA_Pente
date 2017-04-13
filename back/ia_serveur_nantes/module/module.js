@@ -152,11 +152,11 @@ function getAnalysis(grid, x, y) {
 	var i,j; 			// Pour les coordonnées temporaires
 	var pass = false; 	// Permet de voir si on a passé la case étudiée
 	var pLiberte = 1; 	// Pondération sur le nombre de liberté
-	var pBonus = 1; 	// Pondération Bonus
+	var pBonus = 1.5; 	// Pondération Bonus
 	var pCentre = 2; 	// Pondération pour l'espace situé de chaque côté
 	var start = 0;		// start pour recherche sur une porter de 6
 	var end = 0;		// end pour une recherche sur une porter de 6
-
+	var nbSuite = 0;	// verification des suites de pion
 
 	start = (x-6 < 0 ? 0 : x-6);
 	end = (x + 6 > grid.length-1 ? grid.length-1 : x +6);
@@ -174,6 +174,7 @@ function getAnalysis(grid, x, y) {
 			case couleur: // Jeton allié
 				compteur++;
 				bonus++;
+				nbSuite++;
 				break;
 			default: // Jeton adverse
 				if (pass) {
@@ -450,9 +451,9 @@ function checkWinningMove(x, y, grid, playerScore, isPlayer) {
 	}
 
 	// Si il y a le total des tenailles alors on gagne
-	if(checkTenailles(x, y, grid, isPlayer, false) == winningTenailleCount){
+	/*if(checkTenailles(x, y, grid, isPlayer, false) == winningTenailleCount){
 		return col;
-	}
+	}*/
 
 	// Parmis tous ces résultats on regarde s'il y en a un qui dépasse le nombre nécessaire pour gagner
 	if (Math.max(alignH, alignV, alignD1, alignD2) >= winningAlignedPawnCount) return col;
